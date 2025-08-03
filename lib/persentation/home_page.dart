@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/logic/cubit/task_cubit.dart';
-import 'package:flutter_application_1/logic/cubit/task_state.dart';
+import 'package:flutter_application_1/logic/bloc/task_bloc.dart';
+import 'package:flutter_application_1/logic/bloc/task_event.dart';
+
+import 'package:flutter_application_1/logic/bloc/task_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomePage extends StatelessWidget {
@@ -14,17 +16,21 @@ class HomePage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.deepPurple,
         title: const Text(
-          'ToDo App',
+          'ToDo list',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         elevation: 0,
       ),
       body: BlocProvider(
-        create: (context) => TaskCubit(),
-        child: BlocBuilder<TaskCubit, TaskState>(
+        //  create: (context) => TaskCubit(),
+        create: (context) => TaskBloc(),
+        //   child: BlocBuilder<TaskCubit, TaskState>(
+        child: BlocBuilder<TaskBloc, TaskState>(
           builder: (context, state) {
-            final controlcubit = context.read<TaskCubit>();
+            //       final controlcubit = context.read<TaskCubit>();
+            final controlcubit = context.read<TaskBloc>();
+
             return Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -37,7 +43,9 @@ class HomePage extends StatelessWidget {
                     elevation: 4,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       child: Row(
                         children: [
                           Expanded(
@@ -58,7 +66,8 @@ class HomePage extends StatelessWidget {
                             ),
                             onPressed: () {
                               if (controller.text.isEmpty) return;
-                              controlcubit.addTask(controller.text);
+                              // controlcubit.addTask(controller.text);
+                              controlcubit.add(AddTaskEvent(controller.text));
                               controller.clear();
                             },
                             child: const Text(
@@ -78,14 +87,19 @@ class HomePage extends StatelessWidget {
                         ? Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.task_alt,
-                                  size: 80, color: Colors.grey.shade400),
+                              Icon(
+                                Icons.task_alt,
+                                size: 80,
+                                color: Colors.grey.shade400,
+                              ),
                               const SizedBox(height: 10),
                               const Text(
                                 'No tasks yet!\nAdd your first task.',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                    color: Colors.grey, fontSize: 16),
+                                  color: Colors.grey,
+                                  fontSize: 16,
+                                ),
                               ),
                             ],
                           )
@@ -94,21 +108,25 @@ class HomePage extends StatelessWidget {
                             itemBuilder: (context, index) {
                               final task = state.tasklist[index];
                               return Card(
-                                margin:
-                                    const EdgeInsets.symmetric(vertical: 8),
+                                margin: const EdgeInsets.symmetric(vertical: 8),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: ListTile(
                                   contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 16, vertical: 4),
+                                    horizontal: 16,
+                                    vertical: 4,
+                                  ),
                                   leading: Checkbox(
                                     activeColor: Colors.deepPurple,
                                     value: task.iscompleted,
                                     onChanged: (value) {
-                                        controlcubit.toggleTask(
-                              state.tasklist[index].id,
-                            );
+                                      // controlcubit.toggleTask(
+                                      //   state.tasklist[index].id,
+                                      // );
+                                      controlcubit.add(
+                                       ToggleTaskEvent( state.tasklist[index].id,)
+                                      );
                                     },
                                   ),
                                   title: Text(
@@ -124,12 +142,17 @@ class HomePage extends StatelessWidget {
                                     ),
                                   ),
                                   trailing: IconButton(
-                                    icon: const Icon(Icons.delete,
-                                        color: Colors.redAccent),
+                                    icon: const Icon(
+                                      Icons.delete,
+                                      color: Colors.redAccent,
+                                    ),
                                     onPressed: () {
-                                        controlcubit.removeTask(
-                              state.tasklist[index].id,
-                            );
+                                      // controlcubit.removeTask(
+                                      //   state.tasklist[index].id,
+                                      // );
+                                       controlcubit.add(
+                                      RemoveTaskEvent(  state.tasklist[index].id,),
+                                      );
                                     },
                                   ),
                                 ),
